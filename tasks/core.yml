@@ -1,0 +1,47 @@
+- name: install apt packages
+  become: true
+  apt:
+    name:
+      - build-essential
+      - htop
+      - curl
+      - unzip
+      - xclip
+      - feh
+      - pavucontrol
+      - moreutils
+      - fzf
+      - ripgrep
+      - python3-pip
+      - screenkey
+      - compton
+      - lsof
+      - ccache
+      - nvidia-settings
+  tags:
+    - install
+    - core
+
+
+- name: install c packages
+  become: true
+  apt:
+    name:
+      - cmake
+      - clang
+      - clangd
+      - clang-11
+      - clangd-11
+      - clang-12
+      - clangd-12
+  tags:
+    - install
+    - core
+    - neovim
+
+- name: install snap packages
+  become: true
+  snap:
+    name: 
+      - gh # github cli
+    classic: true
