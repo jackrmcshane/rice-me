@@ -1,0 +1,17 @@
+- name: install requisite packages
+  become: true
+  apt:
+    name:
+      - ufw
+      - nmap
+      - openssh-server
+  tags:
+    - install
+    - networking
+
+- name: allow ssh connections
+  become: true
+  shell: ufw allow ssh
+  tags:
+    - install
+    - networking
