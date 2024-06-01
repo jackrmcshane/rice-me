@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# this script is complements of TheAltF4Stream's "How To Automate Your Dev Setup" vid @ https://www.youtube.com/watch?v=V_Cj_p6se3k
+
+# tells bash to exit if any of the following commands exit with non-zero status
+set -e
+
+# TODO: have the script clone down the "ansible/dotfiles" dir (including the vaulted private keys) and begin work so that when using on a fresh install, user only has to perform the following tasks:
+# sudo apt update && sudo apt upgrade
+# curl https://www.raw.github.com/jackrmcshane/ansible/bin/dotfiles | bash
+# 
+# and everything will work as intended
+#
+# have to outline what the dir structure will look like:
+# ansible
+#   |-> bin/
+#   |-> keys/
+#   |-> tasks/
+#   |-> README.md
+#   |-> main.yml
+# .config
+#   |-> nvim
+#         .
+#         .
+#   |-> shell
+
+# set vars
+SSH_DIR="$HOME/.ssh"
+DOTFILES_DIR="$HOME/.dotfiles"
+
+# install ansible if not installed
+if ! [ -x "$(command -v ansible)" ]; then
+  sudo apt install -y ansible
+fi
+
+
+# ansible will install or upgrade any packages in requirements.yml
+if [[ -f "$DOTFILES_DIR/requirements.yml" ]]; then
+  cd "$DOTFILES_DIR"
+
+  ansible-galaxy install -r requirements.yml
+fi
+
+
+cd "$DOTFILES_DIR"
+ansible-playbook --ask-become-pass --diff "$DOTFILES_DIR/main.yml"
+
