@@ -9,6 +9,13 @@
     - install
     - networking
 
+- name: enable ufw
+  become: true
+  shell: systemctl enable ufw
+  tags:
+    - install
+    - networking
+
 - name: allow ssh connections
   become: true
   shell: ufw allow ssh
