@@ -7,3 +7,4 @@
     - include: tasks/ssh.yml
     - include: tasks/git.yml
     - include: tasks/networking.yml
+    - include: tasks/zsh.yml

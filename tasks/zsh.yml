@@ -1,0 +1,15 @@
+- name: install apt packages
+  become: true
+  apt:
+    name:
+      - zsh
+  tags:
+    - install
+    - shell
+
+- name: change shell to zsh
+  become: true
+  shell: chsh -s $(which zsh)
+  tags:
+    - install
+    - shell
