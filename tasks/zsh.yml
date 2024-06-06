@@ -1,0 +1,10 @@
+- name: install apt packages
+  become: true
+  apt:
+    name:
+      - zsh
+  tags:
+    - install
+    - core
+
+- name: change shell to zsh
