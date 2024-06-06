@@ -10,7 +10,6 @@
       - feh
       - pavucontrol
       - moreutils
-      - fzf
       - ripgrep
       - python3-pip
       - screenkey

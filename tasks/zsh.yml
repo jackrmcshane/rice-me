@@ -5,6 +5,11 @@
       - zsh
   tags:
     - install
-    - core
+    - shell
 
 - name: change shell to zsh
+  become: true
+  shell: chsh -s $(which zsh)
+  tags:
+    - install
+    - shell
