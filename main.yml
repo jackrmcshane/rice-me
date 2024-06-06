@@ -8,3 +8,4 @@
     - include: tasks/git.yml
     - include: tasks/networking.yml
     - include: tasks/zsh.yml
+    - include: tasks/tmux.yml

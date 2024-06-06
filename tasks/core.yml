@@ -17,6 +17,7 @@
       - lsof
       - ccache
       - nvidia-settings
+      - bat
   tags:
     - install
     - core

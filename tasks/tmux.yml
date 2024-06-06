@@ -1,0 +1,29 @@
+- name: install zoxide
+  warn: false
+  shell: curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+  tags:
+    - install
+    - tmux
+
+- name: install fzf
+  shell: |
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.config/fzf
+    ~/.config/fzf/install --xdg --all
+
+# - name: install tpm
+- name: install tpm
+  warn: false
+  shell: git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+  tags:
+    - install
+    - tmux
+
+# - name: install tmux
+- name: install tmux
+  become: true
+  apt:
+    name:
+      - tmux
+  tags:
+    - install
+    - tmux
