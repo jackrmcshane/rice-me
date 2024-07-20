@@ -153,8 +153,9 @@
         shell: /usr/bin/zsh
 
     - name: install zoxide
-      warn: false
       shell: curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+      args:
+        warn: false
       tags:
         - install
         - tmux
@@ -166,8 +167,9 @@
 
     # - name: install tpm
     - name: install tpm
-      warn: false
       shell: git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+      args:
+        warn: false
       tags:
         - install
         - tmux
