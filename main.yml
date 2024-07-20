@@ -1,11 +1,200 @@
-- hosts: localhost
+---
+- name: Rice a new Ubuntu install with Wayland for terminal-based workflow
+  hosts: localhost
+  become: yes
+
   vars:
+    # Define your git repository and ansible vault password file
+    # git_repo: "git@github.com:yourusername/yourconfigrepo.git"
+    # vault_password_file: "~/ansible-setup/.vault_pass"
     source_key: "./keys/id_rsa"
     dest_key: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa"
+
   tasks:
-    - include: tasks/core.yml
-    - include: tasks/ssh.yml
-    - include: tasks/git.yml
-    - include: tasks/networking.yml
-    - include: tasks/zsh.yml
-    - include: tasks/tmux.yml
+    - name: Ensure apt cache is up to date
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - sway  # tiling Wayland compositor (drop-in replacement for i3)
+          - swaybg # Wayland equivalent of feh
+          - kitty  # GPU accelerated terminal emulator
+          - zsh
+          - curl
+          - wget
+          - git
+          - htop
+          - unzip
+          - build-essential # contains informational list of packages for building Debian packages (e.g. GCC, g++, make, etc.)
+          - autoconf # tool for producing shell scripts that automatically configure software source code packages to adapt to many kinds of Unix-like systems
+          - automake # tool for automatically generating Makefile.in files compliant with the GNU coding standards
+          - pkg-config # helper tool used when compiling applicatons and libraries. It helps to manage compile and link flags for libraries
+          - libtool  # generic library support script. Libtool hides the complexity of using shared libraries behind a consistent, portable interface.
+          - libevent-dev # development files for libevent, a library to provide asynchronoous event notification
+          - libncurses-dev # developer's libraries for ncurses, a library that provides functions to wirte text-based user interfaces in a terminal-independent manner
+          - cmake
+          - pavucontrol
+          - screenkey
+          - bat
+          - python3-pip
+          - wl-clipboard
+          - xdg-desktop-portal-wlr # used for supporting screen sharing on wayland compositors like sway
+          - cava  # music visualizer
+          - neofetch
+          - ufw
+          - nmap
+          - openssh-server
+          - qutebrowser
+        state: present
+
+    # SSH CONFIGURATION
+    - name: Ensure .ssh directory exists.
+      file:
+        dest: "{{ dest_key | dirname }}"
+        mode: 0700
+        state: directory
+      tags:
+        - dotfiles
+        - install
+        - ssh
+
+    # working, also decrypts
+    - name: Install private ssh key
+      copy:
+        src: "{{ source_key }}"
+        dest: "{{ dest_key }}"
+        mode: 0600
+      tags:
+        - dotfiles
+        - install
+        - ssh
+
+    # works, also decrypts
+    - name: Install public ssh key
+      copy:
+        src: "{{ source_key }}.pub"
+        dest: "{{ dest_key }}.pub"
+        mode: 0644
+      tags:
+        - dotfiles
+        - install
+        - ssh
+
+    # works
+    - name: Set authorized key took from file
+      authorized_key:
+        user: "{{ lookup('env', 'USER') }}"
+        state: present
+        key: "{{ lookup('file', item) }}/.ssh/id_rsa.pub"
+      with_fileglob:
+      - "{{ lookup('env', 'HOME') }}/.ssh/*.pub"
+
+    # GIT CONFIGURATION
+    - name: Git personal setup email
+      git_config:
+        name: user.email
+        scope: global
+        value: "jackrmcshane@gmail.com"
+      tags:
+      - git-personal
+
+    - name: Git personal setup name
+      git_config:
+        name: user.name
+        scope: global
+        value: "jamcshan"
+      tags:
+      - git-personal
+
+    - name: default branch 'main'
+      git_config:
+        name: init.defaultBranch
+        scope: global
+        value: main
+
+    # UFW CONFIGURATION
+    - name: enable ufw
+      become: true
+      shell: systemctl enable ufw
+      tags:
+        - install
+        - networking
+
+    - name: allow ssh connections
+      become: true
+      shell: ufw allow ssh
+      tags:
+        - install
+        - networking
+
+    - name: Install neovim nightly
+      shell: |
+        wget https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+        tar -xzf nvim-linux64.tar.gz
+        mv nvim-linux64/bin/nvim /usr/local/bin/
+        mv nvim-linux64/share/nvim /usr/local/share/
+        rm -rf nvim-linux64 nvim-linux64.tar.gz
+
+    - name: Install tmux nightly
+      shell: |
+        git clone https://github.com/tmux/tmux.git /tmp/tmux
+        cd /tmp/tmux
+        sh autogen.sh
+        ./configure && make
+        make install
+        cd ~
+        rm -rf /tmp/tmux
+
+    - name: Change default shell to zsh
+      user:
+        name: "{{ ansible_user_id }}"
+        shell: /usr/bin/zsh
+
+    - name: install zoxide
+      warn: false
+      shell: curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+      tags:
+        - install
+        - tmux
+
+    - name: install fzf
+      shell: |
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.config/fzf
+        ~/.config/fzf/install --xdg --all
+
+    # - name: install tpm
+    - name: install tpm
+      warn: false
+      shell: git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+      tags:
+        - install
+        - tmux
+
+    # I don't think cargo will have been installed at this point...
+    - name: Install ncspot (terminal-based Spotify client)
+      shell: |
+        cargo install ncspot
+
+    - name: Install starship prompt (for zsh)
+      shell: curl -fsSL https://starship.rs/install.sh | bash -s -- -y
+
+    # PUT CONFIG FILES IN PLACE
+    - name: Clone personal git repository with configurations
+      git:
+        repo: "{{ git_repo }}"
+        dest: "~/configs"
+        accept_hostkey: yes
+
+    - name: Copy configuration files to home directory
+      copy:
+        src: "{{ item }}"
+        dest: "{{ ansible_env.HOME }}/{{ item }}"
+      with_items:
+        - .zshrc
+        - .config/sway
+        - .config/kitty
+        - .config/nvim
+        - .config/tmux
+        - .config/qutebrowser
