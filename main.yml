@@ -4,9 +4,7 @@
   become: yes
 
   vars:
-    # Define your git repository and ansible vault password file
-    # git_repo: "git@github.com:yourusername/yourconfigrepo.git"
-    # vault_password_file: "~/ansible-setup/.vault_pass"
+    git_repo: "git@github.com:jackrmcshane/ubuntu-dots.git"
     source_key: "./keys/id_rsa"
     dest_key: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa"
 
@@ -178,6 +176,7 @@
       shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
       args:
         creates: /home/{{ ansible_user_id }}/.cargo/bin/cargo
+
     # I don't think cargo will have been installed at this point...
     - name: Install ncspot (terminal-based Spotify client)
       shell: |
@@ -195,12 +194,13 @@
 
     - name: Copy configuration files to home directory
       copy:
-        src: "{{ item }}"
-        dest: "{{ ansible_env.HOME }}/{{ item }}"
+        src: "~/configs/{{ item }}"
+        dest: "{{ ansible_env.HOME }}/.config/{{ item }}"
       with_items:
-        - .zshrc
-        - .config/sway
-        - .config/kitty
-        - .config/nvim
-        - .config/tmux
-        - .config/qutebrowser
+        - zshrc
+        # - sway
+        - i3
+        # - kitty
+        - nvim
+        - tmux
+        # - qutebrowser
