@@ -147,7 +147,7 @@
 
     - name: Change default shell to zsh
       user:
-        name: "{{ ansible_user_id }}"
+        name: "{{ username }}"
         shell: /usr/bin/zsh
 
     - name: install zoxide
@@ -160,12 +160,12 @@
 
     - name: install fzf
       shell: |
-        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.config/fzf
-        ~/.config/fzf/install --xdg --all
+        git clone --depth 1 https://github.com/junegunn/fzf.git /home/{{ username }}/.config/fzf
+        /home/{{ username }}/.config/fzf/install --xdg --all
 
-    # - name: install tpm
+    # this gets installed to: /root/.config/tmux/plugins/
     - name: install tpm
-      shell: git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+      shell: git clone https://github.com/tmux-plugins/tpm /home/{{ username }}/.config/tmux/plugins/tpm
       args:
         warn: false
       tags:
@@ -175,7 +175,7 @@
     - name: Install Rust and Cargo
       shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
       args:
-        creates: /home/{{ ansible_user_id }}/.cargo/bin/cargo
+        creates: /home/{{ username }}/.cargo/bin/cargo
 
     # I don't think cargo will have been installed at this point...
     - name: Install ncspot (terminal-based Spotify client)
@@ -194,8 +194,8 @@
 
     - name: Copy configuration files to home directory
       copy:
-        src: "~/configs/{{ item }}"
-        dest: "{{ ansible_env.HOME }}/.config/{{ item }}"
+        src: "{{ lookup('env', 'HOME') }}/configs/{{ item }}"
+        dest: "{{ lookup('env', 'HOME') }}/.config/{{ item }}"
       with_items:
         - zshrc
         # - sway
