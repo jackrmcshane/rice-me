@@ -5,6 +5,7 @@
       - build-essential
       - htop
       - curl
+      - wget
       - unzip
       - xclip
       - feh
@@ -18,6 +19,11 @@
       - ccache
       - nvidia-settings
       - bat
+      - ufw
+      - nmap
+      - openssh-server
+      - zsh
+      - neofetch
   tags:
     - install
     - core
@@ -30,10 +36,6 @@
       - cmake
       - clang
       - clangd
-      - clang-11
-      - clangd-11
-      - clang-12
-      - clangd-12
   tags:
     - install
     - core

@@ -1,14 +1,3 @@
-- name: install requisite packages
-  become: true
-  apt:
-    name:
-      - ufw
-      - nmap
-      - openssh-server
-  tags:
-    - install
-    - networking
-
 - name: enable ufw
   become: true
   shell: systemctl enable ufw

@@ -3,9 +3,9 @@
     source_key: "./keys/id_rsa"
     dest_key: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa"
   tasks:
-    - include: tasks/core.yml
-    - include: tasks/ssh.yml
-    - include: tasks/git.yml
-    - include: tasks/networking.yml
-    - include: tasks/zsh.yml
-    - include: tasks/tmux.yml
+    - include_tasks: tasks/package_installation.yml
+    - include_tasks: tasks/ssh_config.yml
+    - include_tasks: tasks/git_config.yml
+      #- include: tasks/networking.yml
+      #- include: tasks/zsh_config.yml
+      #- include: tasks/tmux_config.yml
